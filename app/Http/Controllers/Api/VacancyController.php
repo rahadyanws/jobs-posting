@@ -19,111 +19,116 @@ use Illuminate\Support\Str;
 class VacancyController extends Controller
 {
     /**
-    * index
-    *
-    * @return void
-    */
-   public function index()
-   {
-       //get all vacancy
-       $vacancies = Vacancy::latest()->paginate(10);
+     * index
+     *
+     * @return void
+     */
+    public function index()
+    {
+        //get all vacancy
+        $vacancies = Vacancy::latest()->paginate(10);
 
-       //return collection of vacancies as a resource
-       return new ApiResource(true, 'Vacancies data list.', $vacancies);
-   }
+        //return collection of vacancies as a resource
+        return response()->json(new ApiResource(true, 'Vacancies data list.', $vacancies), 200);
+    }
 
-   /**
-    * store
-    *
-    * @param  mixed $request
-    * @return void
-    */
-   public function store(Request $request)
-   {
-       //define validation rules
-       $validator = Validator::make($request->all(), [
-           'title'         => 'required|string|max:100',
-           'description'   => 'required',
-           'requirement'   => 'required',
-           'status'        => 'required',
-           'company_name'  => 'required|string|max:100',
-       ]);
+    /**
+     * store
+     *
+     * @param  mixed $request
+     * @return void
+     */
+    public function store(Request $request)
+    {
+        //define validation rules
+        $validator = Validator::make($request->all(), [
+            'title'         => 'required|string|max:100',
+            'description'   => 'required',
+            'requirement'   => 'required',
+            'status'        => 'required',
+            'company_name'  => 'required|string|max:100',
+        ]);
 
-       //check if validation fails
-       if ($validator->fails()) {
-           return response()->json($validator->errors(), 422);
-       }
+        //check if validation fails
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
 
 
-       //create vacancy
-       $vacancy = Vacancy::create([
-           'vacancy_id'    => Str::uuid(),
-           'title'         => $request->title,
-           'description'   => $request->description,
-           'requirement'   => $request->requirement,
-           'status'        => $request->status,
-           'company_name'  => $request->company_name,
-       ]);
+        //create vacancy
+        $vacancy = Vacancy::create([
+            'vacancy_id'    => Str::uuid(),
+            'title'         => $request->title,
+            'description'   => $request->description,
+            'requirement'   => $request->requirement,
+            'status'        => $request->status,
+            'company_name'  => $request->company_name,
+        ]);
 
-       //return response
-       return new ApiResource(true, 'Vacancy success added!', $vacancy);
-   }
+        //return response
+        return response()->json(new ApiResource(true, 'Vacancy success added!', $vacancy), 201);
+    }
 
-   /**
-    * show
-    *
-    * @param  mixed $id
-    * @return void
-    */
-   public function show($id)
-   {
-       //find vacancy by vacancy_id
-       $vacancy = Vacancy::where('vacancy_id', $id)->get();
+    /**
+     * show
+     *
+     * @param  mixed $id
+     * @return void
+     */
+    public function show($id)
+    {
+        //find vacancy by vacancy_id
+        $vacancy = Vacancy::where('vacancy_id', $id)->get();
 
-       //return single vacancy as a resource
-       return new ApiResource(true, 'Detail Data Vacancy!', $vacancy);
-   }
+        //check if vacancy id not found
+        if ($vacancy->count() === 0) {
+            return response()->json(new ApiResource(false, 'Vacancy not found!'), 404);
+        }
 
-   /**
-    * update
-    *
-    * @param  mixed $request
-    * @param  mixed $id
-    * @return void
-    */
-   public function update(Request $request, $id)
-   {
-       //define validation rules
-       $validator = Validator::make($request->all(), [
-           'title'         => 'required|string|max:100',
-           'description'   => 'required',
-           'requirement'   => 'required',
-           'status'        => 'required',
-           'company_name'  => 'required|string|max:100',
-       ]);
+        //return single vacancy as a resource
+        return response()->json(new ApiResource(true, 'Detail Data Vacancy!', $vacancy), 200);
+    }
 
-       //check if validation fails
-       if ($validator->fails()) {
-           return response()->json($validator->errors(), 422);
-       }
+    /**
+     * update
+     *
+     * @param  mixed $request
+     * @param  mixed $id
+     * @return void
+     */
+    public function update(Request $request, $id)
+    {
+        //define validation rules
+        $validator = Validator::make($request->all(), [
+            'title'         => 'required|string|max:100',
+            'description'   => 'required',
+            'requirement'   => 'required',
+            'status'        => 'required',
+            'company_name'  => 'required|string|max:100',
+        ]);
 
-       //check if vacancy id not found
-       if(Vacancy::where('vacancy_id', $id)->get()->count() === 0){
-           return new ApiResource(false, 'Vacancy not found!');
-       }
+        //check if validation fails
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
 
-       //find vacancy by vacancy ID
-       $vacancy = Vacancy::where('vacancy_id', $id)->update(
-           [
-               'title'         => $request->title,
-               'description'   => $request->description,
-               'requirement'   => $request->requirement,
-               'status'        => $request->status,
-               'company_name'  => $request->company_name,
-           ]
-       );
+        //check if vacancy id not found
+        if (Vacancy::where('vacancy_id', $id)->get()->count() === 0) {
+            return response()->json(new ApiResource(false, 'Vacancy not found!'), 404);
+        }
 
-       //return response
-       return new ApiResource(true, 'Vacancy success updated!', $vacancy);
-   }
+        //find vacancy by vacancy ID
+        $vacancy = Vacancy::where('vacancy_id', $id)->update(
+            [
+                'title'         => $request->title,
+                'description'   => $request->description,
+                'requirement'   => $request->requirement,
+                'status'        => $request->status,
+                'company_name'  => $request->company_name,
+            ]
+        );
+
+        //return response
+        return response()->json(new ApiResource(true, 'Vacancy success updated!', $vacancy), 200);
+    }
 }

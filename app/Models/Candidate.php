@@ -22,5 +22,7 @@ class Candidate extends Model
         'name',
         'email',
         'phone',
+        'experience',
+        'education'
     ];
 }
