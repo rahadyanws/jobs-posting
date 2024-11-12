@@ -59,4 +59,43 @@ class ApplyController extends Controller
         //return response
         return response()->json(new ApiResource(true, 'Apply success saved!', $apply), 201);
     }
+
+    /**
+     * update
+     *
+     * @param  mixed $request
+     * @param  mixed $id
+     * @return void
+     */
+    public function update(Request $request, $id)
+    {
+        //define validation rules
+        $validator = Validator::make($request->all(), [
+            'vacancy_id'    => 'required',
+            'candidate_id'  => 'required',
+            'status'        => 'required',
+        ]);
+
+        //check if validation fails
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        //check if vacancy id not found
+        if (Apply::where('apply_id', $id)->get()->count() === 0) {
+            return response()->json(new ApiResource(false, 'Apply not found!'), 404);
+        }
+
+        //find vacancy by vacancy ID
+        $apply= Apply::where('apply_id', $id)->update(
+            [
+                'vacancy_id'    => $request->vacancy_id,
+                'candidate_id'  => $request->candidate_id,
+                'status'        => $request->status,
+            ]
+        );
+
+        //return response
+        return response()->json(new ApiResource(true, 'Apply success updated!', $apply), 200);
+    }
 }

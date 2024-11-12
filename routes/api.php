@@ -9,3 +9,4 @@ Route::get('/user', function (Request $request) {
 
 Route::apiResource('/vacancies', App\Http\Controllers\Api\VacancyController::class);
 Route::post('/applies', 'App\Http\Controllers\Api\ApplyController@store');
+Route::put('/applies/{applies}', 'App\Http\Controllers\Api\ApplyController@update');

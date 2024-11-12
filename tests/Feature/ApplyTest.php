@@ -4,8 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Candidate;
 use App\Models\Vacancy;
+use App\Models\Apply;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class ApplyTest extends TestCase
@@ -41,5 +41,34 @@ class ApplyTest extends TestCase
 
         $response->assertStatus(404);
         $this->assertEquals('Vacancy not found!', $responseData['message']);
+    }
+
+    public function testUpdateApply()
+    {
+        // Create a sample Apply record
+        $apply = Apply::factory()->create();
+  
+        // Prepare the update request data
+        $updateData = [
+            'vacancy_id' => 'new_vacancy_id',
+            'candidate_id' => 'new_candidate_id',
+            'status' => 'accept',
+        ];
+
+        // Send the PUT request to the update endpoint
+        $response = $this->putJson("/api/applies/{$apply->apply_id}", $updateData);
+
+        // Assert the response
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Apply success updated!',
+            ]);
+
+        // Assert the updated Apply record
+        $updatedApply = Apply::find($apply->apply_id);
+        $this->assertEquals($updateData['vacancy_id'], $updatedApply->vacancy_id);
+        $this->assertEquals($updateData['candidate_id'], $updatedApply->candidate_id);
+        $this->assertEquals($updateData['status'], $updatedApply->status);
     }
 }
