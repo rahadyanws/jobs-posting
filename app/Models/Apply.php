@@ -11,7 +11,7 @@ class Apply extends Model
     protected $primaryKey = 'apply_id';
     public $incrementing = false;
     protected $keyType = 'string';
-    
+
     /**
      * fillable
      *

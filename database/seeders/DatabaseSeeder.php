@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Candidate;
 use App\Models\User;
+use App\Models\Vacancy;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -15,18 +16,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        // ]);
 
-        Candidate::create([
-            'candidate_id' => Str::uuid(),
-            'name' => 'John Smith',
-            'email' => 'john@email.com',
-            'phone' => '08000',
-            'experience' => 'Candidate experience',
-            'education' => 'Candidate education'
-        ]);
+        Vacancy::factory()->count(5)->create();
+        Candidate::factory()->count(5)->create();
     }
 }

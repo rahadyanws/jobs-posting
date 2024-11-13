@@ -17,6 +17,8 @@ use Illuminate\Support\Str;
 //import facade Validator
 use Illuminate\Support\Facades\Validator;
 
+use function PHPUnit\Framework\isList;
+
 class ApplyController extends Controller
 {
     /**
@@ -87,7 +89,7 @@ class ApplyController extends Controller
         }
 
         //find vacancy by vacancy ID
-        $apply= Apply::where('apply_id', $id)->update(
+        $apply = Apply::where('apply_id', $id)->update(
             [
                 'vacancy_id'    => $request->vacancy_id,
                 'candidate_id'  => $request->candidate_id,
@@ -97,5 +99,27 @@ class ApplyController extends Controller
 
         //return response
         return response()->json(new ApiResource(true, 'Apply success updated!', $apply), 200);
+    }
+
+    /**
+     * showAllCandidateByVacancyId
+     *
+     * @param  mixed $id
+     * @return void
+     */
+    public function showAllCandidateByVacancyId($id)
+    {
+        //find vacancy by vacancy_id
+        $vacancy = Vacancy::where('vacancy_id', $id)->first();
+
+        //check if vacancy id not found
+        if ($vacancy === null) {
+            return response()->json(new ApiResource(false, 'Vacancy not found!'), 404);
+        }
+
+        //find candidate who apply with specific vacancy id
+        $candidates = $vacancy->applies;
+
+        return response()->json(new ApiResource(true, 'Show all candidates who apply ' . $vacancy->title, $candidates), 200);
     }
 }

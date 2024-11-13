@@ -47,7 +47,7 @@ class ApplyTest extends TestCase
     {
         // Create a sample Apply record
         $apply = Apply::factory()->create();
-  
+
         // Prepare the update request data
         $updateData = [
             'vacancy_id' => 'new_vacancy_id',
@@ -70,5 +70,50 @@ class ApplyTest extends TestCase
         $this->assertEquals($updateData['vacancy_id'], $updatedApply->vacancy_id);
         $this->assertEquals($updateData['candidate_id'], $updatedApply->candidate_id);
         $this->assertEquals($updateData['status'], $updatedApply->status);
+    }
+
+    /**
+     * Test the showAllCandidateByVacancyId method.
+     *
+     * @return void
+     */
+    public function test_show_all_candidates_by_vacancy_id()
+    {
+        $vacancy = Vacancy::factory()->create();
+        $candidates = Apply::factory()->count(3)->create(['vacancy_id' => $vacancy->vacancy_id]);
+
+        $response = $this->getJson("/api/applies/{$vacancy->vacancy_id}");
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'vacancy_id',
+                        // ... other fields of Apply model
+                    ]
+                ]
+            ]);
+    }
+
+    /**
+     * Test the showAllCandidateByVacancyId method with invalid vacancy ID.
+     *
+     * @return void
+     */
+    public function test_show_all_candidates_by_invalid_vacancy_id()
+    {
+        $invalidId = 0;
+
+        $response = $this->getJson("/api/applies/{$invalidId}");
+
+        $response->assertStatus(404)
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data'
+            ]);
     }
 }

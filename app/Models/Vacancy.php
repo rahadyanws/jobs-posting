@@ -25,4 +25,9 @@ class Vacancy extends Model
         'status',
         'company_name',
     ];
+
+    public function applies()
+    {
+        return $this->belongsToMany(Candidate::class, 'applies', 'vacancy_id', 'candidate_id');
+    }
 }
