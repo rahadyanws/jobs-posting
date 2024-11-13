@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\Candidate;
-use App\Models\Vacancy;
-use App\Models\Apply;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use App\Models\User;
+use App\Models\Apply;
+use App\Models\Vacancy;
+use App\Models\Candidate;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ApplyTest extends TestCase
 {
@@ -45,6 +47,10 @@ class ApplyTest extends TestCase
 
     public function testUpdateApply()
     {
+        // Create a User and token
+        $user = User::factory()->create();
+        $token = JWTAuth::fromUser($user);
+
         // Create a sample Apply record
         $apply = Apply::factory()->create();
 
@@ -56,7 +62,8 @@ class ApplyTest extends TestCase
         ];
 
         // Send the PUT request to the update endpoint
-        $response = $this->putJson("/api/applies/{$apply->apply_id}", $updateData);
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        ->putJson("/api/applies/{$apply->apply_id}", $updateData);
 
         // Assert the response
         $response->assertStatus(200)
@@ -79,10 +86,14 @@ class ApplyTest extends TestCase
      */
     public function test_show_all_candidates_by_vacancy_id()
     {
+        // Create a User and token
+        $user = User::factory()->create();
+        $token = JWTAuth::fromUser($user);
+
         $vacancy = Vacancy::factory()->create();
         $candidates = Apply::factory()->count(3)->create(['vacancy_id' => $vacancy->vacancy_id]);
 
-        $response = $this->getJson("/api/applies/candidates/{$vacancy->vacancy_id}");
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)->getJson("/api/applies/candidates/{$vacancy->vacancy_id}");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -106,9 +117,14 @@ class ApplyTest extends TestCase
      */
     public function test_show_all_candidates_by_invalid_vacancy_id()
     {
+        // Create a User and token
+        $user = User::factory()->create();
+        $token = JWTAuth::fromUser($user);
+
         $invalidId = 0;
 
-        $response = $this->getJson("/api/applies/candidates/{$invalidId}");
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        ->getJson("/api/applies/candidates/{$invalidId}");
 
         $response->assertStatus(404)
             ->assertJsonStructure([
@@ -125,10 +141,15 @@ class ApplyTest extends TestCase
      */
     public function test_show_all_vacancies_by_candidate_id()
     {
+        // Create a User and token
+        $user = User::factory()->create();
+        $token = JWTAuth::fromUser($user);
+
         $candidate = Candidate::factory()->create();
         $vacancies = Apply::factory()->count(3)->create(['candidate_id' => $candidate->candidate_id]);
 
-        $response = $this->getJson("/api/applies/vacancies/{$candidate->candidate_id}");
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        ->getJson("/api/applies/vacancies/{$candidate->candidate_id}");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -152,9 +173,14 @@ class ApplyTest extends TestCase
      */
     public function test_show_all_vacancies_by_invalid_candidate_id()
     {
+        // Create a User and token
+        $user = User::factory()->create();
+        $token = JWTAuth::fromUser($user);
+
         $invalidId = 'invalid_id';
 
-        $response = $this->getJson("/api/applies/vacancies/{$invalidId}");
+        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        ->getJson("/api/applies/vacancies/{$invalidId}");
 
         $response->assertStatus(404)
             ->assertJsonStructure([
