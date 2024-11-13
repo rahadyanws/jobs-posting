@@ -122,4 +122,26 @@ class ApplyController extends Controller
 
         return response()->json(new ApiResource(true, 'Show all candidates who apply ' . $vacancy->title, $candidates), 200);
     }
+
+    /**
+     * showAllVacancyByCandidateId
+     *
+     * @param  mixed $id
+     * @return void
+     */
+    public function showAllVacancyByCandidateId($id)
+    {
+        //find vacancy by vacancy_id
+        $candidate = Candidate::where('candidate_id', $id)->first();
+
+        //check if vacancy id not found
+        if ($candidate === null) {
+            return response()->json(new ApiResource(false, 'Candidate not found!'), 404);
+        }
+
+        //find candidate who apply with specific vacancy id
+        $vacancies = $candidate->applies;
+
+        return response()->json(new ApiResource(true, 'Show all vacancies who apply by ' . $candidate->name, $vacancies), 200);
+    }
 }

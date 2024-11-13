@@ -82,7 +82,7 @@ class ApplyTest extends TestCase
         $vacancy = Vacancy::factory()->create();
         $candidates = Apply::factory()->count(3)->create(['vacancy_id' => $vacancy->vacancy_id]);
 
-        $response = $this->getJson("/api/applies/{$vacancy->vacancy_id}");
+        $response = $this->getJson("/api/applies/candidates/{$vacancy->vacancy_id}");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -90,9 +90,10 @@ class ApplyTest extends TestCase
                 'message',
                 'data' => [
                     '*' => [
-                        'id',
+                        'apply_id',
                         'vacancy_id',
-                        // ... other fields of Apply model
+                        'candidate_id',
+                        'status'
                     ]
                 ]
             ]);
@@ -107,7 +108,53 @@ class ApplyTest extends TestCase
     {
         $invalidId = 0;
 
-        $response = $this->getJson("/api/applies/{$invalidId}");
+        $response = $this->getJson("/api/applies/candidates/{$invalidId}");
+
+        $response->assertStatus(404)
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data'
+            ]);
+    }
+
+    /**
+     * Test the showAllVacancyByCandidateId method.
+     *
+     * @return void
+     */
+    public function test_show_all_vacancies_by_candidate_id()
+    {
+        $candidate = Candidate::factory()->create();
+        $vacancies = Apply::factory()->count(3)->create(['candidate_id' => $candidate->candidate_id]);
+
+        $response = $this->getJson("/api/applies/vacancies/{$candidate->candidate_id}");
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    '*' => [
+                        'apply_id',
+                        'vacancy_id',
+                        'candidate_id',
+                        'status'
+                    ]
+                ]
+            ]);
+    }
+
+    /**
+     * Test the showAllVacancyByCandidateId method with invalid candidate ID.
+     *
+     * @return void
+     */
+    public function test_show_all_vacancies_by_invalid_candidate_id()
+    {
+        $invalidId = 'invalid_id';
+
+        $response = $this->getJson("/api/applies/vacancies/{$invalidId}");
 
         $response->assertStatus(404)
             ->assertJsonStructure([
